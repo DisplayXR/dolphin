@@ -1,5 +1,11 @@
 # Dolphin - A GameCube and Wii Emulator
 
+> **This is the `displayxr` branch of a fork, not upstream Dolphin.** It adds a stereo mode that
+> shows games on glasses-free 3D displays through the DisplayXR runtime, on Android with the OpenGL
+> backend. It is not made or endorsed by the Dolphin team. What it does, what you need and its
+> limits: [docs/DisplayXR-Android.md](docs/DisplayXR-Android.md). Upstream Dolphin:
+> https://github.com/dolphin-emu/dolphin.
+
 [Homepage](https://dolphin-emu.org/) | [Project Site](https://github.com/dolphin-emu/dolphin) | [Buildbot](https://dolphin.ci/) | [Forums](https://forums.dolphin-emu.org/) | [Wiki](https://wiki.dolphin-emu.org/) | [GitHub Wiki](https://github.com/dolphin-emu/dolphin/wiki) | [Issue Tracker](https://bugs.dolphin-emu.org/projects/emulator/issues) | [Coding Style](https://github.com/dolphin-emu/dolphin/blob/master/Contributing.md) | [Transifex Page](https://app.transifex.com/dolphinemu/dolphin-emu/dashboard/) | [Analytics](https://mon.dolphin-emu.org/)
 
 Dolphin is an emulator for running GameCube and Wii games on Windows,

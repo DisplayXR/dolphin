@@ -1,54 +1,107 @@
-# DisplayXR output on Android
+# Dolphin 3D (DisplayXR) for Android
 
-The `DisplayXR` stereoscopic mode (Graphics > Stereoscopy > Stereoscopy Mode, "3D Display
-(DisplayXR, OpenGL)") sends each frame to the OpenXR runtime of a 3D display, through the
-runtime's `XR_DXR_weave` extension. The runtime interlaces ("weaves") the two eyes for the panel
-and follows the viewer's eyes with the front camera. The runtime is installed separately; Dolphin
-only carries the Khronos OpenXR loader.
+Dolphin 3D is a fork of the Dolphin GameCube and Wii emulator for Android. It adds one stereo mode,
+"3D Display (DisplayXR, OpenGL)": Dolphin renders each frame twice, once per eye, and hands the
+pair to the DisplayXR runtime, which interlaces it for a glasses-free 3D display. Everything else
+is Dolphin. The fork is not made or endorsed by the Dolphin team.
 
-Requirements: the OpenGL backend (`[Core] GFXBackend = OGL`), a GPU with geometry shaders (OpenGL
-ES 3.2), and the DisplayXR runtime installed. On other backends the mode falls back to Off with a
-message.
+## What you need
 
-## Behavior
+- An Android device with a glasses-free 3D display.
+- The DisplayXR runtime for Android, installed, together with the display plug-in for that device.
+  The runtime is a separate app; this fork only carries the Khronos OpenXR loader that connects to
+  it.
+- A GPU with OpenGL ES 3.2. The 3D mode uses Dolphin's OpenGL backend.
+- Your own software. The app comes with no games, no BIOS and no firmware, and this project does not
+  link to any.
 
-- Each eye is rendered with its own camera (Dolphin's usual stereoscopy); the pair is laid out
-  half side-by-side over the whole window and woven by the runtime.
-- On-screen messages and the FPS counter are drawn identically into both halves, so they sit flat
-  at the screen plane.
-- While emulation is paused, the app is in the background or the in-game menu is open, the session
-  ends and the display shows the left eye in 2D. 3D returns on the next frame after that.
-- "Follow Head (3D Display)", off by default, moves each eye's camera with the viewer's tracked eye.
+## Install
 
-## Depth settings
+Download the signed APK from the Releases page of this repository and install it. It installs as a
+separate app ("Dolphin 3D (DisplayXR)", package `org.displayxr.dolphin`) next to a regular Dolphin,
+with its own settings and user folder.
 
-Dolphin's `StereoDepth` (separation) and `StereoConvergence` set each eye's camera offset and the
-distance that lands on the screen plane. Content should sit near the screen plane: on a
-2400x1080 panel, keep most of the scene within about 20 pixels of disparity, and nothing more than
-about 40 pixels out of the screen.
+## Turn on 3D
 
-Homebrew `.dol` files get a game ID made from their file name (`ID-<name>`), so per-program values
-go in `User/GameSettings/ID-<name>.ini`. Values measured on a 2400x1080 panel for devkitPro's
-`gamecube-examples` (disparity in screen pixels, negative is in front of the screen):
+1. Settings > Graphics Settings > Video Backend: **OpenGL**.
+2. Settings > Graphics Settings > Enhancements > Stereoscopy > Stereoscopy Mode: **3D Display
+   (DisplayXR, OpenGL)**.
+3. Start a game. The first time, Android asks for camera access; the display uses the front camera
+   to follow your eyes.
 
-| Program | StereoDepth | StereoConvergence | Disparity (5th–95th percentile, extremes) |
-|---|---|---|---|
-| `graphics/gx/neheGX/lesson05` | 70 | 6 | −16 to +16 (−20, +22) |
-| `graphics/gx/acube` | 100 | 185 | −24 to +18 (−32, +20) |
-| `graphics/gx/neheGX/lesson09` | 80 | 14 | 0 to +14 |
-| `graphics/gx/neheGX/lesson10` | 12 | 2 | 0 to +4 (−32, +6) |
+The game shows in 3D while it runs. The display switches to 2D while the game is paused, while the
+in-game menu is open and while the app is in the background, and back to 3D when you return.
+On-screen messages and the FPS counter sit flat on the screen surface.
 
-```ini
-# User/GameSettings/ID-lesson05.ini
-[Video_Stereoscopy]
-StereoDepth = 70
-StereoConvergence = 6
-```
+## Depth
 
-## Debugging
+Two settings under Stereoscopy set the depth:
+
+- **Separation**: how far apart the two eye cameras are. Lower means flatter.
+- **Convergence**: the distance in the game that appears on the screen surface. Objects nearer than
+  it come out of the screen, objects farther go behind it.
+
+Keep most of the picture near the screen surface: a 3D display shows small depth comfortably and
+large depth as double edges.
+
+Games differ in scale, so set depth per game:
+
+- While a game runs, Settings in the in-game menu changes depth immediately. If the game has its own
+  settings file (below), the change lasts until you close the game; otherwise it changes the global
+  value.
+- To keep a value for one game, write it into that game's settings file in the app's user folder,
+  `Android/data/org.displayxr.dolphin/files/GameSettings/<GAME ID>.ini`:
+
+  ```ini
+  [Video_Stereoscopy]
+  StereoDepth = 24
+  StereoConvergence = 10
+  ```
+
+  `StereoDepth` is Separation. A game's own file takes priority over the global Stereoscopy
+  settings, so changing the global values does not change a game that has a file. For a `.dol` or
+  `.elf` program the game ID is `ID-` followed by its file name, for example `ID-neverball`.
+
+## Known limits
+
+- **OpenGL ES only.** The Vulkan backend has no 3D Display mode yet; with Vulkan selected the mode
+  falls back to Off.
+- **Depth is set by hand, per game.** There is no automatic depth; the defaults suit some games
+  and are too strong or too flat for others.
+- **No head-following parallax by default.** The display follows your eyes to keep both eyes'
+  pictures in place. The scene itself does not change with head position unless you turn on
+  "Follow Head (3D Display)", which is experimental.
+- **Dialogs stay in 3D.** Only the in-game menu, pause and the background switch the display to 2D.
+  Pop-up dialogs (alerts, controller choice) appear over the 3D picture.
+- **Stereo rendering costs speed.** Each frame is drawn twice; games that run at full speed in 2D
+  may not in 3D.
+- **Touch controls are flat overlays** drawn over the 3D picture.
+
+## Building
+
+Build as upstream Dolphin for Android (see [AndroidSetup.md](../AndroidSetup.md)). `-PabiOnly=arm64-v8a` limits the
+build to one ABI. The workflow in `.github/workflows/build-android.yml` builds the arm64 release APK, and signs and publishes it for
+tags named `v*` when the signing secrets are set.
+
+## How it works
+
+- `Source/Core/VideoBackends/OGL/OGLDisplayXR.cpp` connects to the runtime through the OpenXR
+  `XR_DXR_weave` extension: the side-by-side pair goes to the runtime in a shared hardware buffer,
+  and the woven picture comes back and replaces the frame.
+- `Source/Core/VideoCommon/Present.cpp` lays the two eyes out side by side, draws the on-screen UI
+  into both halves, and shows the left eye alone while the game is paused or covered.
+- Each eye is rendered with its own camera by Dolphin's existing stereoscopy. Nothing shifts the
+  finished pictures.
+
+### Debugging
 
 - `adb shell setprop debug.dolphin.displayxr.eyes_manual 1` asks the runtime for manual eye
-  tracking when the session starts, so the display stays in 3D with nobody in front of it.
-- The runtime can capture what Dolphin submits and what it returns: create
-  `displayxr_atlas_trigger.<package>` in the runtime's external files directory; it writes
-  `displayxr_atlas.<package>.input.png` (the side-by-side pair) and `.woven.png` next to it.
+  tracking when a session starts, so the display stays in 3D with nobody in front of it.
+- The runtime can save what the app submits and what it returns: create
+  `displayxr_atlas_trigger.org.displayxr.dolphin` in the runtime's external files folder.
+
+## License
+
+GPL-2.0-or-later, like Dolphin. The OpenXR headers are Apache-2.0 OR MIT, the DisplayXR extension
+headers Apache-2.0 (`Externals/DisplayXR/`), and parts of the weave transport are adapted from
+DisplayXR code under the Boost Software License 1.0.
