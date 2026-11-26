@@ -289,7 +289,9 @@ std::unique_ptr<GLContext> GLContextEGL::CreateSharedContext()
 
 bool GLContextEGL::CreateWindowSurface()
 {
-  if (!IsHeadless())
+  // A windowed context can lose its window (on Android, while the app is in the background).
+  // It then gets a pbuffer or no surface, like a headless one, until the next window arrives.
+  if (!IsHeadless() && m_wsi.render_surface)
   {
     EGLNativeWindowType native_window = GetEGLNativeWindow(m_config);
     m_egl_surface = eglCreateWindowSurface(m_egl_display, m_config, native_window, nullptr);
