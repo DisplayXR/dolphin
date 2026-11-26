@@ -50,7 +50,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="false"
-                        android:text="@string/about_dolphin"
+                        android:text="@string/about_fork"
                         android:textAppearance="@style/TextAppearance.AppCompat.Display3"
                         android:textColor="@color/dolphin_onSurface" />
 
@@ -92,6 +92,23 @@
                         android:layout_marginTop="@dimen/spacing_large"
                         android:focusable="false"
                         android:text="@string/about_dolphin_description"
+                        android:textColor="@color/dolphin_onSurface" />
+
+                    <TextView
+                        android:id="@+id/about_fork_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_large"
+                        android:focusable="false"
+                        android:text="@string/about_fork_description"
+                        android:textColor="@color/dolphin_onSurface" />
+
+                    <TextView
+                        android:id="@+id/fork_source_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medlarge"
+                        android:text="@string/about_fork_source"
                         android:textColor="@color/dolphin_onSurface" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout

@@ -932,6 +932,11 @@ It can efficiently compress both junk data and encrypted Wii data.
     <string name="about_support">
         <a href="https://forums.dolphin-emu.org/">Support</a>
     </string>
+    <string name="about_fork">Dolphin 3D (DisplayXR)</string>
+    <string name="about_fork_description">This app is a fork of Dolphin that adds output to 3D displays through the DisplayXR runtime. It is based on Dolphin and is not made or endorsed by the Dolphin team. Report problems with the 3D output to the fork, not to the Dolphin team.</string>
+    <string name="about_fork_source">
+        <a href="https://github.com/DisplayXR/dolphin">Fork source code (GPL-2.0-or-later)</a>
+    </string>
     <string name="about_copyright_warning">\u00A9 2003–2024+ Dolphin Team. \u201cGameCube\u201d and \u201cWii\u201d are trademarks of Nintendo. Dolphin is not affiliated with Nintendo in any way.</string>
     <string name="system_driver">System driver</string>
     <string name="system_driver_desc">The GPU driver that is part of the OS.</string>

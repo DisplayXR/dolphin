@@ -41,7 +41,7 @@
                     android:layout_gravity="center_horizontal"
                     android:focusable="false"
                     android:gravity="center_horizontal"
-                    android:text="@string/about_dolphin"
+                    android:text="@string/about_fork"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display3"
                     android:textColor="@color/dolphin_onSurface" />
 
@@ -92,6 +92,27 @@
                     android:gravity="center_horizontal"
                     android:text="@string/about_dolphin_description"
                     android:textColor="@color/dolphin_onSurface" />
+
+                <TextView
+                    android:id="@+id/about_fork_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_large"
+                    android:gravity="center_horizontal"
+                    android:text="@string/about_fork_description"
+                    android:textColor="@color/dolphin_onSurface"
+                    android:focusable="false"
+                    android:layout_gravity="center_horizontal" />
+
+                <TextView
+                    android:id="@+id/fork_source_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medlarge"
+                    android:gravity="center_horizontal"
+                    android:text="@string/about_fork_source"
+                    android:textColor="@color/dolphin_onSurface"
+                    android:layout_gravity="center_horizontal" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"

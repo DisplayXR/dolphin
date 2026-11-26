@@ -59,6 +59,7 @@ class AboutDialogFragment : BottomSheetDialogFragment() {
             bindingMobile.websiteText.movementMethod = LinkMovementMethod.getInstance()
             bindingMobile.githubText.movementMethod = LinkMovementMethod.getInstance()
             bindingMobile.supportText.movementMethod = LinkMovementMethod.getInstance()
+            bindingMobile.forkSourceText.movementMethod = LinkMovementMethod.getInstance()
 
             bindingMobile.versionText.text = BuildConfig.VERSION_NAME
             bindingMobile.branchText.text = branch
@@ -72,6 +73,7 @@ class AboutDialogFragment : BottomSheetDialogFragment() {
             bindingTv.websiteText.movementMethod = LinkMovementMethod.getInstance()
             bindingTv.githubText.movementMethod = LinkMovementMethod.getInstance()
             bindingTv.supportText.movementMethod = LinkMovementMethod.getInstance()
+            bindingTv.forkSourceText.movementMethod = LinkMovementMethod.getInstance()
 
             bindingTv.versionText.text = BuildConfig.VERSION_NAME
             bindingTv.branchText.text = branch
