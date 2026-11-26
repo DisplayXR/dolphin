@@ -104,6 +104,14 @@ android {
             // We only officially support arm64-v8a and x86_64.
             // If you want to try building other ABIs anyway, you need -DENABLE_GENERIC=ON.
             abiFilters += listOf("arm64-v8a", "x86_64") //, "armeabi-v7a", "x86"
+
+            // -PabiOnly=arm64-v8a builds and packages one ABI only. Also limits the libraries that
+            // come with dependencies (the OpenXR loader ships several), so the APK doesn't claim an
+            // ABI it has no emulator for.
+            (project.findProperty("abiOnly") as String?)?.let {
+                abiFilters.clear()
+                abiFilters += it
+            }
         }
 
         externalNativeBuild {
