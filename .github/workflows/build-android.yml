@@ -96,7 +96,7 @@ jobs:
       - name: Check the APK
         run: |
           set -euo pipefail
-          APK=$(find Source/Android/app/build/outputs/apk/release Source/Android/app/build/intermediates/apk/release -name '*.apk' 2>/dev/null | head -1)
+          APK=$(find Source/Android/app/build/outputs/apk/release Source/Android/app/build/intermediates/apk/release -name '*.apk' 2>/dev/null | head -1 || true)
           [ -n "$APK" ] || { echo "::error::no release APK"; exit 1; }
           AAPT2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
           badging=$("$AAPT2" dump badging "$APK")
@@ -124,7 +124,7 @@ jobs:
           [ "$GITHUB_REF_TYPE" = "tag" ] || VER="dev-${GITHUB_SHA::8}"
           SUFFIX=""
           [ "$HAS_KEYSTORE" = "true" ] || SUFFIX="-unsigned"
-          APK=$(find Source/Android/app/build/outputs/apk/release Source/Android/app/build/intermediates/apk/release -name '*.apk' 2>/dev/null | head -1)
+          APK=$(find Source/Android/app/build/outputs/apk/release Source/Android/app/build/intermediates/apk/release -name '*.apk' 2>/dev/null | head -1 || true)
           mkdir -p out
           cp "$APK" "out/Dolphin3D-DisplayXR-${VER}-arm64${SUFFIX}.apk"
           ls -la out
