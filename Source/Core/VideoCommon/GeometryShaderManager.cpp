@@ -6,6 +6,7 @@
 #include "Common/ChunkFile.h"
 #include "Common/CommonTypes.h"
 #include "VideoCommon/BPMemory.h"
+#include "VideoCommon/DisplayXR.h"
 #include "VideoCommon/RenderState.h"
 #include "VideoCommon/VideoConfig.h"
 #include "VideoCommon/XFMemory.h"
@@ -46,6 +47,14 @@ void GeometryShaderManager::SetVSExpand(VSExpand expand)
 
 void GeometryShaderManager::SetConstants(PrimitiveType prim)
 {
+  const bool follow_head = g_ActiveConfig.stereo_mode == StereoMode::DisplayXR &&
+                           g_ActiveConfig.stereo_displayxr_follow_head;
+  if (follow_head && m_displayxr_eyes_generation != DisplayXR::GetTrackedEyesGeneration())
+  {
+    m_displayxr_eyes_generation = DisplayXR::GetTrackedEyesGeneration();
+    m_projection_changed = true;
+  }
+
   if (m_projection_changed && g_ActiveConfig.stereo_mode != StereoMode::Off)
   {
     m_projection_changed = false;
@@ -53,8 +62,24 @@ void GeometryShaderManager::SetConstants(PrimitiveType prim)
     if (xfmem.projection.type == ProjectionType::Perspective)
     {
       const float offset = g_ActiveConfig.stereo_depth;
-      constants.stereoparams[0] = g_ActiveConfig.bStereoSwapEyes ? offset : -offset;
-      constants.stereoparams[1] = g_ActiveConfig.bStereoSwapEyes ? -offset : offset;
+      float left = -offset;
+      float right = offset;
+
+      // Each eye's camera follows the viewer's tracked eye: the separation setting applies to an
+      // average 63 mm between the eyes, and moving the head moves both cameras with the same
+      // scale. The convergence plane (stereoparams[2]) does not move, so the screen plane stays
+      // put while the scene shows parallax.
+      const std::optional<DisplayXR::TrackedEyes> eyes =
+          follow_head ? DisplayXR::GetTrackedEyes() : std::nullopt;
+      if (eyes)
+      {
+        constexpr float HALF_AVERAGE_IPD = 0.0315f;
+        left = offset * eyes->left_x / HALF_AVERAGE_IPD;
+        right = offset * eyes->right_x / HALF_AVERAGE_IPD;
+      }
+
+      constants.stereoparams[0] = g_ActiveConfig.bStereoSwapEyes ? right : left;
+      constants.stereoparams[1] = g_ActiveConfig.bStereoSwapEyes ? left : right;
     }
     else
     {

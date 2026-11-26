@@ -27,6 +27,15 @@ add_library(videoogl
 )
 
 target_link_libraries(videoogl PUBLIC common videocommon)
+
+if(ANDROID)
+  target_sources(videoogl PRIVATE
+    OGLDisplayXR.cpp
+    OGLDisplayXR.h
+  )
+  target_include_directories(videoogl PRIVATE ${CMAKE_SOURCE_DIR}/Externals/DisplayXR/include)
+  target_link_libraries(videoogl PRIVATE androidcommon android GLESv3 EGL)
+endif()
 if(X11_FOUND)
   target_link_libraries(videoogl PRIVATE PkgConfig::X11)
 endif()

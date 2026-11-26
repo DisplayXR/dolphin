@@ -9,6 +9,9 @@
 #include "Common/Logging/LogManager.h"
 
 #include "VideoBackends/OGL/OGLConfig.h"
+#ifdef ANDROID
+#include "VideoBackends/OGL/OGLDisplayXR.h"
+#endif
 #include "VideoBackends/OGL/OGLPipeline.h"
 #include "VideoBackends/OGL/OGLShader.h"
 #include "VideoBackends/OGL/OGLTexture.h"
@@ -198,6 +201,9 @@ OGLGfx::OGLGfx(std::unique_ptr<GLContext> main_gl_context, float backbuffer_scal
 
 OGLGfx::~OGLGfx()
 {
+#ifdef ANDROID
+  m_displayxr_weave.reset();
+#endif
   glDeleteFramebuffers(1, &m_shared_draw_framebuffer);
   glDeleteFramebuffers(1, &m_shared_read_framebuffer);
 }
@@ -434,6 +440,18 @@ void OGLGfx::PresentBackbuffer()
   m_main_gl_context->Swap();
 }
 
+bool OGLGfx::WeaveBackbuffer()
+{
+#ifdef ANDROID
+  if (!m_displayxr_weave)
+    m_displayxr_weave = std::make_unique<DisplayXRWeave>();
+  return m_displayxr_weave->WeaveBackbuffer(m_system_framebuffer->GetWidth(),
+                                            m_system_framebuffer->GetHeight());
+#else
+  return false;
+#endif
+}
+
 void OGLGfx::OnConfigChanged(u32 bits)
 {
   AbstractGfx::OnConfigChanged(bits);
@@ -461,6 +479,13 @@ void OGLGfx::CheckForSurfaceChange()
 {
   if (!g_presenter->SurfaceChangedTestAndClear())
     return;
+
+#ifdef ANDROID
+  // Without a surface (the app went to the background) end the DisplayXR session, so the display
+  // returns to 2D. The next woven frame starts a new one.
+  if (m_displayxr_weave && !g_presenter->GetNewSurfaceHandle())
+    m_displayxr_weave.reset();
+#endif
 
   m_main_gl_context->UpdateSurface(g_presenter->GetNewSurfaceHandle());
 

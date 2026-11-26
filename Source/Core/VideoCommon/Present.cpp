@@ -895,6 +895,21 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
     m_post_processor->BlitFromTexture(left_rc, source_rc, source_texture, 0);
     m_post_processor->BlitFromTexture(right_rc, source_rc, source_texture, 1);
   }
+  else if (g_ActiveConfig.stereo_mode == StereoMode::DisplayXR)
+  {
+    // Half side-by-side over the whole backbuffer, which the display's runtime weaves in place.
+    // Each eye was rendered with its own camera; nothing here shifts the pictures.
+    const auto [left_rc, right_rc] = ConvertStereoRectangle(target_rc);
+    m_post_processor->BlitFromTexture(left_rc, source_rc, source_texture, 0);
+    m_post_processor->BlitFromTexture(right_rc, source_rc, source_texture, 1);
+
+    if (!g_gfx->WeaveBackbuffer())
+    {
+      // No woven image (session starting, or failed): show the left eye in 2D instead.
+      g_gfx->SetAndClearFramebuffer(g_gfx->GetCurrentFramebuffer(), {{0.0f, 0.0f, 0.0f, 1.0f}});
+      m_post_processor->BlitFromTexture(target_rc, source_rc, source_texture, 0);
+    }
+  }
   // Every other case will be treated the same (stereo or not).
   // If there's multiple source layers, they should all be copied.
   else

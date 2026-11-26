@@ -61,6 +61,7 @@
 #include "UICommon/GameFile.h"
 #include "UICommon/UICommon.h"
 
+#include "VideoCommon/DisplayXR.h"
 #include "VideoCommon/OnScreenDisplay.h"
 #include "VideoCommon/Present.h"
 #include "VideoCommon/VideoBackendBase.h"
@@ -487,6 +488,12 @@ JNIEXPORT void JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_SurfaceDestr
   }
 
   s_surface_cv.notify_all();
+}
+
+JNIEXPORT void JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_SetSurfaceScreenOrigin(
+    JNIEnv*, jclass, jint x, jint y, jint display_id)
+{
+  DisplayXR::SetWindowOrigin(x, y, display_id);
 }
 
 JNIEXPORT jboolean JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_HasSurface(JNIEnv*, jclass)

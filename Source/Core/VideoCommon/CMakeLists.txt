@@ -55,6 +55,8 @@ add_library(videocommon
   CPUCull.cpp
   CPUCull.h
   CPUCullImpl.h
+  DisplayXR.cpp
+  DisplayXR.h
   DriverDetails.cpp
   DriverDetails.h
   EFBInterface.cpp

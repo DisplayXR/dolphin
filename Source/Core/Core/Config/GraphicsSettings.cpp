@@ -186,6 +186,8 @@ const Info<bool> GFX_STEREO_EFB_MONO_DEPTH{{System::GFX, "Stereoscopy", "StereoE
                                            false};
 const Info<float> GFX_STEREO_DEPTH_PERCENTAGE{{System::GFX, "Stereoscopy", "StereoDepthPercentage"},
                                               100};
+const Info<bool> GFX_STEREO_DISPLAYXR_FOLLOW_HEAD{
+    {System::GFX, "Stereoscopy", "DisplayXRFollowHead"}, false};
 
 // Graphics.Hacks
 

@@ -19,6 +19,7 @@ kotlinxSerializationJson = "1.11.0"
 leanback = "1.2.0"
 lifecycle = "2.11.0"
 material = "1.14.0"
+openxrLoader = "1.1.63"
 preferenceKtx = "1.2.1"
 profileinstaller = "1.4.1"
 recyclerview = "1.4.0"
@@ -59,6 +60,7 @@ androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "s
 androidx-tvprovider = { group = "androidx.tvprovider", name = "tvprovider", version.ref = "tvprovider" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+openxr-loader-android = { group = "org.khronos.openxr", name = "openxr_loader_for_android", version.ref = "openxrLoader" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 desugar_jdk_libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 filepicker = { group = "com.nononsenseapps", name = "filepicker", version.ref = "filepicker" }

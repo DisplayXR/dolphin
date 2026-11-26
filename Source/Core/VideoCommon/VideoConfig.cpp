@@ -174,6 +174,7 @@ void VideoConfig::Refresh()
                        Config::Get(Config::GFX_STEREO_CONVERGENCE_PERCENTAGE) * 0.01f;
   bStereoSwapEyes = Config::Get(Config::GFX_STEREO_SWAP_EYES);
   bStereoEFBMonoDepth = Config::Get(Config::GFX_STEREO_EFB_MONO_DEPTH);
+  stereo_displayxr_follow_head = Config::Get(Config::GFX_STEREO_DISPLAYXR_FOLLOW_HEAD);
 
   bEFBAccessEnable = Config::Get(Config::GFX_HACK_EFB_ACCESS_ENABLE);
   bEFBAccessDeferInvalidation = Config::Get(Config::GFX_HACK_EFB_DEFER_INVALIDATION);
@@ -221,6 +222,11 @@ void VideoConfig::VerifyValidity()
       OSD::AddMessage(
           "Stereoscopic 3D isn't supported by your GPU, support for OpenGL 3.2 is required.",
           10000);
+      stereo_mode = StereoMode::Off;
+    }
+    else if (stereo_mode == StereoMode::DisplayXR && !g_backend_info.bSupportsDisplayXR)
+    {
+      OSD::AddMessage("DisplayXR 3D output needs the OpenGL backend on Android.", 10000);
       stereo_mode = StereoMode::Off;
     }
   }

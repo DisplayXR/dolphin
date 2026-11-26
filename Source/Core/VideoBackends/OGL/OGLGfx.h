@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "VideoCommon/AbstractGfx.h"
 #include "VideoCommon/Constants.h"
 
@@ -10,6 +12,9 @@ class GLContext;
 
 namespace OGL
 {
+#ifdef ANDROID
+class DisplayXRWeave;
+#endif
 class OGLFramebuffer;
 class OGLTexture;
 
@@ -61,6 +66,7 @@ public:
                              u32 groupsize_z, u32 groups_x, u32 groups_y, u32 groups_z) override;
   bool BindBackbuffer(const ClearColor& clear_color = {}) override;
   void PresentBackbuffer() override;
+  bool WeaveBackbuffer() override;
 
   void BeginUtilityDrawing() override;
   void EndUtilityDrawing() override;
@@ -104,6 +110,9 @@ private:
 
   std::unique_ptr<GLContext> m_main_gl_context;
   std::unique_ptr<OGLFramebuffer> m_system_framebuffer;
+#ifdef ANDROID
+  std::unique_ptr<DisplayXRWeave> m_displayxr_weave;
+#endif
   std::array<const OGLTexture*, VideoCommon::MAX_PIXEL_SHADER_SAMPLERS> m_bound_textures{};
   std::array<const AbstractTexture*, VideoCommon::MAX_COMPUTE_SHADER_SAMPLERS>
       m_bound_image_textures{};

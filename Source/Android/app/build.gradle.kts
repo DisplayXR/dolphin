@@ -160,6 +160,9 @@ dependencies {
 
     implementation(libs.filepicker)
 
+    // OpenXR loader, for the DisplayXR stereo mode (the runtime itself is installed separately)
+    implementation(libs.openxr.loader.android)
+
     // Jetpack Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

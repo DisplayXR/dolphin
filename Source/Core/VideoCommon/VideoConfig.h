@@ -37,7 +37,8 @@ enum class StereoMode : int
   TopAndBottom,
   Anaglyph,
   QuadBuffer,
-  Passive
+  Passive,
+  DisplayXR,  // Side-by-side, woven for a 3D display by its DisplayXR runtime (Android, OpenGL)
 };
 
 enum class ShaderCompilationMode : int
@@ -180,6 +181,7 @@ struct BackendInfo
   bool bSupportsVSLinePointExpand = false;
   bool bSupportsGLLayerInFS = true;
   bool bSupportsHDROutput = false;
+  bool bSupportsDisplayXR = false;
   bool bSupportsUnrestrictedDepthRange = false;
 };
 
@@ -321,6 +323,7 @@ struct VideoConfig final
   float stereo_convergence = 0;
   bool bStereoSwapEyes = false;
   bool bStereoEFBMonoDepth = false;
+  bool stereo_displayxr_follow_head = false;
 
   // D3D only config, mostly to be merged into the above
   int iAdapter = 0;

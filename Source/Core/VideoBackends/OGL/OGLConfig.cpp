@@ -542,6 +542,11 @@ bool PopulateConfig(GLContext* m_main_gl_context)
 
   g_backend_info.bSupportsBBox = g_backend_info.bSupportsFragmentStoresAndAtomics;
 
+#ifdef ANDROID
+  // The pair is shared with the display's runtime through AHardwareBuffers (OGLDisplayXR.cpp).
+  g_backend_info.bSupportsDisplayXR = g_backend_info.bSupportsGeometryShaders;
+#endif
+
   // Either method can do early-z tests. See PixelShaderGen for details.
   g_backend_info.bSupportsEarlyZ =
       g_ogl_config.bSupportsImageLoadStore || g_ogl_config.bSupportsConservativeDepth;

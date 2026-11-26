@@ -110,6 +110,11 @@ public:
   // Presents the backbuffer to the window system, or "swaps buffers".
   virtual void PresentBackbuffer() {}
 
+  // DisplayXR stereo mode: the backbuffer holds the side-by-side pair. Hands it to the 3D
+  // display's runtime, starting the session on first use, and replaces it with the woven image.
+  // Returns false, with the backbuffer untouched, if no woven image is available this frame.
+  virtual bool WeaveBackbuffer() { return false; }
+
   // Shader modules/objects.
   virtual std::unique_ptr<AbstractShader>
   CreateShaderFromSource(ShaderStage stage, std::string_view source,

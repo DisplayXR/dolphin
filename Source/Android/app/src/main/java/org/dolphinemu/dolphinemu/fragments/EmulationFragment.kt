@@ -2,7 +2,9 @@
 
 package org.dolphinemu.dolphinemu.fragments
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.first
@@ -21,6 +24,7 @@ import org.dolphinemu.dolphinemu.activities.EmulationActivity
 import org.dolphinemu.dolphinemu.databinding.FragmentEmulationBinding
 import org.dolphinemu.dolphinemu.features.netplay.NetplayManager
 import org.dolphinemu.dolphinemu.features.settings.model.BooleanSetting
+import org.dolphinemu.dolphinemu.features.settings.model.IntSetting
 import org.dolphinemu.dolphinemu.features.settings.model.Settings
 import org.dolphinemu.dolphinemu.overlay.InputOverlay
 import org.dolphinemu.dolphinemu.utils.AfterDirectoryInitializationRunner
@@ -35,6 +39,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private var runWhenSurfaceIsValid = false
     private var loadPreviousTemporaryState = false
     private var launchSystemMenu = false
+    private var cameraRequested = false
 
     private var emulationActivity: EmulationActivity? = null
 
@@ -74,6 +79,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         // The new Surface created here will get passed to the native code via onSurfaceChanged.
         val surfaceView = binding.surfaceEmulation
         surfaceView.holder.addCallback(this)
+        surfaceView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            publishSurfaceOrigin()
+        }
 
         inputOverlay = binding.surfaceInputOverlay
 
@@ -108,8 +116,34 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
 
         AfterDirectoryInitializationRunner().runWithLifecycle(this) {
+            requestCameraForDisplayXR()
             run(emulationActivity!!.isActivityRecreated)
         }
+    }
+
+    /**
+     * The DisplayXR stereo mode hands frames to a 3D display's runtime, which follows the viewer's
+     * eyes with the front camera while this app is in the foreground.
+     */
+    private fun requestCameraForDisplayXR() {
+        if (IntSetting.GFX_STEREO_MODE.int != STEREO_MODE_DISPLAYXR || cameraRequested) return
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
+        ) return
+        cameraRequested = true
+        requireActivity().requestPermissions(arrayOf(Manifest.permission.CAMERA), REQUEST_CODE_CAMERA)
+    }
+
+    /**
+     * The DisplayXR runtime anchors the panel's interlace to where the surface sits on the screen.
+     */
+    private fun publishSurfaceOrigin() {
+        val surfaceView = _binding?.surfaceEmulation ?: return
+        val location = IntArray(2)
+        surfaceView.getLocationOnScreen(location)
+        NativeLibrary.SetSurfaceScreenOrigin(
+            location[0], location[1], surfaceView.display?.displayId ?: -1
+        )
     }
 
     override fun onPause() {
@@ -153,6 +187,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         Log.debug("[EmulationFragment] Surface changed. Resolution: $width x $height")
+        publishSurfaceOrigin()
         NativeLibrary.SurfaceChanged(holder.surface)
         if (runWhenSurfaceIsValid) {
             runWithValidSurface()
@@ -275,6 +310,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         private const val KEY_GAMEPATHS = "gamepaths"
         private const val KEY_RIIVOLUTION = "riivolution"
         private const val KEY_SYSTEM_MENU = "systemMenu"
+        private const val REQUEST_CODE_CAMERA = 502
+
+        // StereoMode::DisplayXR in VideoCommon/VideoConfig.h
+        const val STEREO_MODE_DISPLAYXR = 6
 
         fun newInstance(
             gamePaths: Array<String>?, riivolution: Boolean, systemMenu: Boolean

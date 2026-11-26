@@ -272,6 +272,8 @@
     <string name="stereoscopy_convergence_description">Control the distance of the convergence plane, this is the distance at which objects will appear to be in front of the screen.\nA higher value creates stronger out-of-screen effects while a lower value is more comfortable.</string>
     <string name="stereoscopy_swap_eyes">Swap Eyes</string>
     <string name="stereoscopy_swap_eyes_description">Swap the left and right eye, mostly useful if you want to view side-by-side cross-eyed.</string>
+    <string name="stereoscopy_displayxr_follow_head">Follow Head (3D Display)</string>
+    <string name="stereoscopy_displayxr_follow_head_description">In the 3D Display mode, moves each eye\'s camera with the viewer\'s tracked eye, so the scene shows parallax as you move your head.</string>
 
     <string name="hacks_submenu">Hacks</string>
     <string name="embedded_frame_buffer">Embedded Frame Buffer</string>
@@ -808,6 +810,7 @@ It can efficiently compress both junk data and encrypted Wii data.
     <string name="stereoscopy_side_by_side">Side-by-Side</string>
     <string name="stereoscopy_top_and_bottom">Top-and-Bottom</string>
     <string name="stereoscopy_anaglyph">Anaglyph</string>
+    <string name="stereoscopy_displayxr">3D Display (DisplayXR, OpenGL)</string>
 
     <!-- Aspect Ratio Preference -->
     <string name="aspect_ratio_auto">Auto</string>

@@ -30,5 +30,6 @@ private:
   void SetVSExpand(VSExpand expand);
 
   bool m_projection_changed = false;
+  u32 m_displayxr_eyes_generation = 0;
   bool m_viewport_changed = false;
 };

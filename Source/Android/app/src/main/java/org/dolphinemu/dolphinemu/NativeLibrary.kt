@@ -5,6 +5,7 @@
 
 package org.dolphinemu.dolphinemu
 
+import android.content.Context
 import android.content.res.Resources
 import android.view.Surface
 import android.widget.Toast
@@ -356,6 +357,19 @@ object NativeLibrary {
 
     @JvmStatic
     external fun SurfaceDestroyed()
+
+    /**
+     * Where the render surface's top-left corner is on the screen (DisplayXR stereo mode).
+     */
+    @JvmStatic
+    external fun SetSurfaceScreenOrigin(x: Int, y: Int, displayId: Int)
+
+    /**
+     * The application context, for the DisplayXR stereo mode's OpenXR runtime connection.
+     */
+    @JvmStatic
+    @Keep
+    fun getApplicationContext(): Context = DolphinApplication.getAppContext()
 
     @JvmStatic
     external fun HasSurface(): Boolean
