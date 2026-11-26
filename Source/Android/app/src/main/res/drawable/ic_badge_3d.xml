@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "3D" badge for the DisplayXR fork's launcher icon (108dp adaptive-icon canvas, inside the
+     safe zone). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- pill with a white rim, so it reads on the dolphin and on the background -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M61.5,59.5h12a6.5,6.5 0,0 1,0 13h-12a6.5,6.5 0,0 1,0 -13z" />
+    <path
+        android:fillColor="#FF14142B"
+        android:pathData="M61.5,60.6h12a5.4,5.4 0,0 1,0 10.8h-12a5.4,5.4 0,0 1,0 -10.8z" />
+    <!-- "3" -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M60.1,63.1C60.8,62.2 64.3,61.9 64.3,64.0C64.3,65.4 63.1,65.9 62.1,65.9C63.4,65.9 64.5,66.4 64.5,67.9C64.5,70.2 60.9,70.0 60.0,68.9" />
+    <!-- "D" -->
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M67.0,62.3L67.0,69.7L68.9,69.7C71.8,69.7 72.6,68.0 72.6,66.0C72.6,64.0 71.8,62.3 68.9,62.3Z" />
+</vector>
