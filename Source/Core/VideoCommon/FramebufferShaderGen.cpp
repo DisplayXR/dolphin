@@ -266,12 +266,14 @@ std::string GeneratePassthroughGeometryShader(u32 num_tex, u32 num_colors)
                "void main()\n"
                "{{\n"
                "  for (int j = 0; j < 2; j++)\n"
-               "  {{\n"
-               "    gl_Layer = j;\n");
+               "  {{\n");
 
     // We have to explicitly unroll this loop otherwise the GL compiler gets cranky.
     for (u32 v = 0; v < 3; v++)
     {
+      // Outputs, gl_Layer included, are undefined after EmitVertex(), so every vertex sets the
+      // layer. Some drivers otherwise route the second layer's triangles to the first layer.
+      code.Write("    gl_Layer = j;\n");
       code.Write("    gl_Position = gl_in[{}].gl_Position;\n", v);
       for (u32 i = 0; i < num_tex; i++)
       {
