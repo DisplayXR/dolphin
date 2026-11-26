@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Common/CommonTypes.h"
+#include "Common/MathUtil.h"
 #include "VideoCommon/OnScreenUIKeyMap.h"
 
 class NativeVertexFormat;
@@ -45,7 +46,9 @@ public:
 
   // Renders ImGui windows to the currently-bound framebuffer.
   // Should be called with the ImGui lock held.
+  // Draws the UI over the whole backbuffer, or squeezed into target_rc (backbuffer coordinates).
   void DrawImGui();
+  void DrawImGui(const MathUtil::Rectangle<int>& target_rc);
 
   // Recompiles ImGui pipeline - call when stereo mode changes.
   bool RecompileImGuiPipeline();

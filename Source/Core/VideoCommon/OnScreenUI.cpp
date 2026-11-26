@@ -31,6 +31,7 @@
 #include "VideoCommon/VertexManagerBase.h"
 #include "VideoCommon/VideoConfig.h"
 
+#include <cmath>
 #include <inttypes.h>
 #include <mutex>
 
@@ -212,12 +213,21 @@ void OnScreenUI::BeginImGuiFrameUnlocked(u32 width, u32 height)
 
 void OnScreenUI::DrawImGui()
 {
+  DrawImGui(MathUtil::Rectangle<int>(0, 0, m_backbuffer_width, m_backbuffer_height));
+}
+
+void OnScreenUI::DrawImGui(const MathUtil::Rectangle<int>& target_rc)
+{
   ImDrawData* draw_data = ImGui::GetDrawData();
-  if (!draw_data)
+  if (!draw_data || m_backbuffer_width <= 0 || m_backbuffer_height <= 0)
     return;
 
-  g_gfx->SetViewport(0.0f, 0.0f, static_cast<float>(m_backbuffer_width),
-                     static_cast<float>(m_backbuffer_height), 0.0f, 1.0f);
+  // The UI is laid out over the whole backbuffer; the viewport maps it onto target_rc.
+  g_gfx->SetViewport(static_cast<float>(target_rc.left), static_cast<float>(target_rc.top),
+                     static_cast<float>(target_rc.GetWidth()),
+                     static_cast<float>(target_rc.GetHeight()), 0.0f, 1.0f);
+  const float scale_x = static_cast<float>(target_rc.GetWidth()) / m_backbuffer_width;
+  const float scale_y = static_cast<float>(target_rc.GetHeight()) / m_backbuffer_height;
 
   // Uniform buffer for draws.
   struct ImGuiUbo
@@ -253,8 +263,10 @@ void OnScreenUI::DrawImGui()
 
       g_gfx->SetScissorRect(g_gfx->ConvertFramebufferRectangle(
           MathUtil::Rectangle<int>(
-              static_cast<int>(cmd.ClipRect.x), static_cast<int>(cmd.ClipRect.y),
-              static_cast<int>(cmd.ClipRect.z), static_cast<int>(cmd.ClipRect.w)),
+              target_rc.left + static_cast<int>(cmd.ClipRect.x * scale_x),
+              target_rc.top + static_cast<int>(cmd.ClipRect.y * scale_y),
+              target_rc.left + static_cast<int>(std::ceil(cmd.ClipRect.z * scale_x)),
+              target_rc.top + static_cast<int>(std::ceil(cmd.ClipRect.w * scale_y))),
           g_gfx->GetCurrentFramebuffer()));
       g_gfx->SetTexture(0, reinterpret_cast<const AbstractTexture*>(cmd.GetTexID()));
       g_gfx->DrawIndexed(base_index, cmd.ElemCount, base_vertex);
