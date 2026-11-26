@@ -221,6 +221,10 @@ class EmulationActivity : AppCompatActivity(), ThemeProvider {
 
         setInsets()
 
+        // The DisplayXR stereo mode shows the game in 2D while the menu covers it.
+        supportFragmentManager.addOnBackStackChangedListener { updateGameCovered() }
+        updateGameCovered()
+
         // Find or create the EmulationFragment
         emulationFragment = supportFragmentManager
             .findFragmentById(R.id.frame_emulation_fragment) as EmulationFragment?
@@ -395,6 +399,13 @@ class EmulationActivity : AppCompatActivity(), ThemeProvider {
         }
 
         requestedOrientation = IntSetting.MAIN_EMULATION_ORIENTATION.int
+    }
+
+    private fun updateGameCovered() {
+        NativeLibrary.SetGameCovered(
+            supportFragmentManager.findFragmentById(R.id.frame_menu) != null ||
+                supportFragmentManager.findFragmentById(R.id.frame_submenu) != null
+        )
     }
 
     private fun closeSubmenu(): Boolean =

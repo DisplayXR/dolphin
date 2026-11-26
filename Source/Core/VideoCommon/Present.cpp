@@ -6,6 +6,7 @@
 #include "Common/ChunkFile.h"
 #include "Core/Config/GraphicsSettings.h"
 #include "Core/Config/MainSettings.h"
+#include "Core/Core.h"
 #include "Core/CoreTiming.h"
 #include "Core/HW/VideoInterface.h"
 #include "Core/Host.h"
@@ -15,6 +16,7 @@
 
 #include "Present.h"
 #include "VideoCommon/AbstractGfx.h"
+#include "VideoCommon/DisplayXR.h"
 #include "VideoCommon/FrameDumper.h"
 #include "VideoCommon/FramebufferManager.h"
 #include "VideoCommon/OnScreenUI.h"
@@ -99,6 +101,9 @@ Presenter::Presenter()
 
   m_config_changed =
       video_events.config_changed_event.Register([this](u32 bits) { ConfigChanged(bits); });
+
+  m_displayxr_state_changed = Core::AddOnStateChangedCallback(
+      [](Core::State state) { DisplayXR::SetPaused(state == Core::State::Paused); });
 
   m_end_field_hook = video_events.vi_end_field_event.Register(
       [this] { m_immediate_swap_happened_this_field.store(false, std::memory_order_relaxed); });
@@ -897,16 +902,17 @@ void Presenter::RenderXFBToScreen(const MathUtil::Rectangle<int>& target_rc,
   }
   else if (g_ActiveConfig.stereo_mode == StereoMode::DisplayXR)
   {
-    // Half side-by-side over the whole backbuffer, which the display's runtime weaves in place.
-    // Each eye was rendered with its own camera; nothing here shifts the pictures.
-    const auto [left_rc, right_rc] = ConvertStereoRectangle(target_rc);
-    m_post_processor->BlitFromTexture(left_rc, source_rc, source_texture, 0);
-    m_post_processor->BlitFromTexture(right_rc, source_rc, source_texture, 1);
-
-    if (!g_gfx->WeaveBackbuffer())
+    if (m_displayxr_side_by_side)
     {
-      // No woven image (session starting, or failed): show the left eye in 2D instead.
-      g_gfx->SetAndClearFramebuffer(g_gfx->GetCurrentFramebuffer(), {{0.0f, 0.0f, 0.0f, 1.0f}});
+      // Half side-by-side over the whole backbuffer, which the display's runtime weaves in place
+      // (see Present). Each eye was rendered with its own camera; nothing here shifts pictures.
+      const auto [left_rc, right_rc] = ConvertStereoRectangle(target_rc);
+      m_post_processor->BlitFromTexture(left_rc, source_rc, source_texture, 0);
+      m_post_processor->BlitFromTexture(right_rc, source_rc, source_texture, 1);
+    }
+    else
+    {
+      // The display shows 2D: the left eye only.
       m_post_processor->BlitFromTexture(target_rc, source_rc, source_texture, 0);
     }
   }
@@ -951,22 +957,54 @@ void Presenter::Present(PresentInfo* present_info)
   g_gfx->BeginUtilityDrawing();
   const bool backbuffer_bound = g_gfx->BindBackbuffer({{0.0f, 0.0f, 0.0f, 1.0f}});
 
+  // DisplayXR: the pair goes to the display's runtime to be woven, unless the game is paused or
+  // covered, in which case the display shows it in 2D.
+  const bool displayxr = g_ActiveConfig.stereo_mode == StereoMode::DisplayXR;
+  m_displayxr_side_by_side = displayxr && backbuffer_bound && !DisplayXR::ShowFlat();
+  if (displayxr && !m_displayxr_side_by_side)
+    g_gfx->EndWeave();
+
   // Render the XFB to the screen.
-  if (backbuffer_bound && m_xfb_entry)
-  {
+  const auto render_xfb = [this] {
+    if (!m_xfb_entry)
+      return;
+
     // Adjust the source rectangle instead of using an oversized viewport to render the XFB.
     MathUtil::Rectangle<int> render_target_rc = GetTargetRectangle();
     MathUtil::Rectangle<int> render_source_rc = AdjustForCustomCrop(m_xfb_rect);
     AdjustRectanglesToFitBounds(&render_target_rc, &render_source_rc, m_backbuffer_width,
                                 m_backbuffer_height);
     RenderXFBToScreen(render_target_rc, m_xfb_entry->texture.get(), render_source_rc);
-  }
+  };
+  if (backbuffer_bound)
+    render_xfb();
 
   if (m_onscreen_ui)
-  {
     m_onscreen_ui->Finalize();
-    if (backbuffer_bound)
-      m_onscreen_ui->DrawImGui();
+
+  if (m_displayxr_side_by_side)
+  {
+    // The UI goes into both halves, identical, so it is woven at the screen plane.
+    if (m_onscreen_ui)
+    {
+      const int half = m_backbuffer_width / 2;
+      m_onscreen_ui->DrawImGui(MathUtil::Rectangle<int>(0, 0, half, m_backbuffer_height));
+      m_onscreen_ui->DrawImGui(MathUtil::Rectangle<int>(half, 0, half * 2, m_backbuffer_height));
+    }
+
+    if (!g_gfx->WeaveBackbuffer())
+    {
+      // No woven image (session starting, or failed): show the frame in 2D instead.
+      m_displayxr_side_by_side = false;
+      g_gfx->SetAndClearFramebuffer(g_gfx->GetCurrentFramebuffer(), {{0.0f, 0.0f, 0.0f, 1.0f}});
+      render_xfb();
+      if (m_onscreen_ui)
+        m_onscreen_ui->DrawImGui();
+    }
+  }
+  else if (m_onscreen_ui && backbuffer_bound)
+  {
+    m_onscreen_ui->DrawImGui();
   }
 
   // Present to the window system.

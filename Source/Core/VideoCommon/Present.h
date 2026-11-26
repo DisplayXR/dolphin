@@ -136,6 +136,9 @@ private:
 
   // Backbuffer (window) size and render area
   int m_backbuffer_width = 0;
+  // DisplayXR stereo mode: this frame is laid out side by side, to be woven.
+  bool m_displayxr_side_by_side = false;
+  Common::EventHook m_displayxr_state_changed;
   int m_backbuffer_height = 0;
   float m_backbuffer_scale = 1.0f;
   AbstractTextureFormat m_backbuffer_format = AbstractTextureFormat::Undefined;

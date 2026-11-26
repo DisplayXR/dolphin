@@ -115,6 +115,10 @@ public:
   // Returns false, with the backbuffer untouched, if no woven image is available this frame.
   virtual bool WeaveBackbuffer() { return false; }
 
+  // DisplayXR stereo mode: ends the session, if one is running, so the display returns to 2D.
+  // The next WeaveBackbuffer() starts a new one.
+  virtual void EndWeave() {}
+
   // Shader modules/objects.
   virtual std::unique_ptr<AbstractShader>
   CreateShaderFromSource(ShaderStage stage, std::string_view source,

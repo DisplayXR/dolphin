@@ -496,6 +496,12 @@ JNIEXPORT void JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_SetSurfaceSc
   DisplayXR::SetWindowOrigin(x, y, display_id);
 }
 
+JNIEXPORT void JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_SetGameCovered(JNIEnv*, jclass,
+                                                                                   jboolean covered)
+{
+  DisplayXR::SetCovered(covered);
+}
+
 JNIEXPORT jboolean JNICALL Java_org_dolphinemu_dolphinemu_NativeLibrary_HasSurface(JNIEnv*, jclass)
 {
   std::lock_guard guard(s_surface_lock);

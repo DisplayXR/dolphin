@@ -67,6 +67,7 @@ public:
   bool BindBackbuffer(const ClearColor& clear_color = {}) override;
   void PresentBackbuffer() override;
   bool WeaveBackbuffer() override;
+  void EndWeave() override;
 
   void BeginUtilityDrawing() override;
   void EndUtilityDrawing() override;

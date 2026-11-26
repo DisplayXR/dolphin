@@ -365,6 +365,13 @@ object NativeLibrary {
     external fun SetSurfaceScreenOrigin(x: Int, y: Int, displayId: Int)
 
     /**
+     * A menu or another screen covers the game. In the DisplayXR stereo mode the display then
+     * shows the game in 2D.
+     */
+    @JvmStatic
+    external fun SetGameCovered(covered: Boolean)
+
+    /**
      * The application context, for the DisplayXR stereo mode's OpenXR runtime connection.
      */
     @JvmStatic

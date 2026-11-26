@@ -25,6 +25,12 @@ struct WindowOrigin
 void SetWindowOrigin(int x, int y, int display_id);
 WindowOrigin GetWindowOrigin();
 
+// The display shows the game in 2D while emulation is paused or something covers the game (a
+// menu, another screen). Both calls redraw the last frame, so the change shows even while paused.
+void SetCovered(bool covered);  // host
+void SetPaused(bool paused);    // emulation state
+bool ShowFlat();
+
 // The viewer's eyes, horizontally, in meters from the display's center (x to the right).
 struct TrackedEyes
 {

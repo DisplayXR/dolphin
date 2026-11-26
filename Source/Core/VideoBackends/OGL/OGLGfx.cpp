@@ -455,6 +455,13 @@ bool OGLGfx::WeaveBackbuffer()
 #endif
 }
 
+void OGLGfx::EndWeave()
+{
+#ifdef ANDROID
+  m_displayxr_weave.reset();
+#endif
+}
+
 void OGLGfx::OnConfigChanged(u32 bits)
 {
   AbstractGfx::OnConfigChanged(bits);
