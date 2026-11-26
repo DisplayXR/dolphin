@@ -36,13 +36,16 @@ android {
     }
 
     defaultConfig {
-        applicationId = "org.dolphinemu.dolphinemu"
+        // A fork with the DisplayXR 3D output: its own package, so it installs next to Dolphin
+        // and is never taken for an upstream build.
+        applicationId = "org.displayxr.dolphin"
         minSdk = 24
         targetSdk = 37
 
         versionCode = getBuildVersionCode()
 
-        versionName = getGitVersion()
+        // Release builds of the fork are named after their tag (-PversionNameOverride=v1.0.0).
+        versionName = (project.findProperty("versionNameOverride") as String?) ?: getGitVersion()
 
         buildConfigField("String", "GIT_HASH", "\"${getGitHash()}\"")
         buildConfigField("String", "BRANCH", "\"${getBranch()}\"")
@@ -69,7 +72,7 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
 
-            resValue("string", "app_name_suffixed", "Dolphin Emulator")
+            resValue("string", "app_name_suffixed", "Dolphin 3D (DisplayXR)")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -81,7 +84,7 @@ android {
         // Signed by debug key disallowing distribution on Play Store.
         // Attaches "debug" suffix to version and package name, allowing installation alongside the release build.
         debug {
-            resValue("string", "app_name_suffixed", "Dolphin Debug")
+            resValue("string", "app_name_suffixed", "Dolphin 3D Debug")
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isJniDebuggable = true
