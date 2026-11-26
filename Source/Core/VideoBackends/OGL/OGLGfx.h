@@ -112,6 +112,7 @@ private:
   std::unique_ptr<OGLFramebuffer> m_system_framebuffer;
 #ifdef ANDROID
   std::unique_ptr<DisplayXRWeave> m_displayxr_weave;
+  bool m_has_surface = true;
 #endif
   std::array<const OGLTexture*, VideoCommon::MAX_PIXEL_SHADER_SAMPLERS> m_bound_textures{};
   std::array<const AbstractTexture*, VideoCommon::MAX_COMPUTE_SHADER_SAMPLERS>

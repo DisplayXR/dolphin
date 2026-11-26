@@ -443,6 +443,9 @@ void OGLGfx::PresentBackbuffer()
 bool OGLGfx::WeaveBackbuffer()
 {
 #ifdef ANDROID
+  // No window to show it in (the app is in the background): no session either.
+  if (!m_has_surface)
+    return false;
   if (!m_displayxr_weave)
     m_displayxr_weave = std::make_unique<DisplayXRWeave>();
   return m_displayxr_weave->WeaveBackbuffer(m_system_framebuffer->GetWidth(),
@@ -480,14 +483,17 @@ void OGLGfx::CheckForSurfaceChange()
   if (!g_presenter->SurfaceChangedTestAndClear())
     return;
 
+  void* const surface_handle = g_presenter->GetNewSurfaceHandle();
+
 #ifdef ANDROID
   // Without a surface (the app went to the background) end the DisplayXR session, so the display
-  // returns to 2D. The next woven frame starts a new one.
-  if (m_displayxr_weave && !g_presenter->GetNewSurfaceHandle())
+  // returns to 2D. The next woven frame after the surface returns starts a new one.
+  m_has_surface = surface_handle != nullptr;
+  if (!m_has_surface)
     m_displayxr_weave.reset();
 #endif
 
-  m_main_gl_context->UpdateSurface(g_presenter->GetNewSurfaceHandle());
+  m_main_gl_context->UpdateSurface(surface_handle);
 
   u32 width = m_main_gl_context->GetBackBufferWidth();
   u32 height = m_main_gl_context->GetBackBufferHeight();
